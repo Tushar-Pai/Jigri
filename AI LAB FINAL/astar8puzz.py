@@ -1,13 +1,44 @@
-def print_b(src):
-    state = src.copy()
-    state[state.index(-1)] = ' '
-    print(
-        f"""
-{state[0]} {state[1]} {state[2]}
-{state[3]} {state[4]} {state[5]}
-{state[6]} {state[7]} {state[8]}
-        """
-    )
+src = [1, 2, 3, -1, 4, 5, 6, 7, 8]
+target = [1, 2, 3, 4, 5, -1, 6, 7, 8]
+
+def display(state):
+    for i in range(9):
+        if(i%3==0):print('')
+        print(state[i],end="  ")
+    print("\n---------") 
+
+
+def generateState(cur):
+
+    i = cur.index(-1)
+    moves = []
+
+    if(i%3<2):moves.append('r')
+    if(i>2):moves.append('u')
+    if(i<6):moves.append('d')
+    if(i%3>0):moves.append('l')
+
+    states = []
+
+    for move in moves:
+        state=next_state(cur, i, move)
+        states.append(state)
+
+    return states
+
+
+def next_state(cur,i,move):
+    temp=cur[:]
+    if(move=='r'):
+        temp[i],temp[i+1]=temp[i+1],temp[i]
+    if(move=='l'):
+        temp[i],temp[i-1]=temp[i-1],temp[i]
+    if(move=='u'):
+        temp[i],temp[i-3]=temp[i-3],temp[i]
+    if(move=='d'):
+        temp[i],temp[i+3]=temp[i+3],temp[i]
+    return temp
+
 
 def h(state, target):
     count=0
@@ -26,61 +57,16 @@ def astar(state,target):# Add inputs if more are required
         moves = []
         for state in states:
             visited_states.append(state)
-            print_b(state)
+            display(state)
             if state == target:
                 print("Success")
                 return
-            moves += [move for move in possible_moves(state, visited_states) if move not in moves]
+            moves += [move for move in generateState(state) if move not in moves]
         costs = [g + h(move, target) for move in moves]
         states = [moves[i] for i in range(len(moves)) if costs[i] == min(costs)]
         g += 1
     print("Fail")
 
 
-def possible_moves(state, visited_state):  # Add inputs if more are required
-    # Find index of empty spot and assign it to b
-    b = state.index(-1)
-
-    # 'd' for down, 'u' for up, 'r' for right, 'l' for left - directions array
-    d = []
-
-    # Add all possible direction into directions array - Hint using if statements
-    if b - 3 in range(9):
-        d.append('u')
-    if b not in [0, 3, 6]:
-        d.append('l')
-    if b not in [2, 5, 8]:
-        d.append('r')
-    if b + 3 in range(9):
-        d.append('d')
-
-    # If direction is possible then add state to move
-    pos_moves = []
-
-    # for all possible directions find the state if that move is played
-    ### Jump to gen function to generate all possible moves in the given directions
-    for m in d:
-        pos_moves.append(gen(state, m, b))
-
-    # return all possible moves only if the move not in visited_states
-    return [move for move in pos_moves if move not in visited_state]
-
-
-def gen(state, m, b):
-    temp = state.copy()
-
-    # if move is to slide empty spot to the left and so on
-    if m == 'u': temp[b - 3], temp[b] = temp[b], temp[b - 3]
-    if m == 'l': temp[b - 1], temp[b] = temp[b], temp[b - 1]
-    if m == 'r': temp[b + 1], temp[b] = temp[b], temp[b + 1]
-    if m == 'd': temp[b + 3], temp[b] = temp[b], temp[b + 3]
-
-    # return new state with tested move to later check if "src == target"
-    return temp
-
-
-# Test 1
-src = [1, 2, 3, -1, 4, 5, 6, 7, 8]
-target = [1, 2, 3, 4, 5, -1, 6, 7, 8]
 
 astar(src, target)
